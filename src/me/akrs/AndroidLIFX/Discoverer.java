@@ -5,67 +5,44 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
-
-import android.content.Context;
-import android.net.DhcpInfo;
-import android.net.wifi.WifiManager;
-import android.net.wifi.WifiManager.MulticastLock;
-
 import me.akrs.AndroidLIFX.network.BulbNetwork;
 import me.akrs.AndroidLIFX.packets.responses.StandardResponse;
 import me.akrs.AndroidLIFX.utils.Logger;
 
 public class Discoverer {
-	private Context mContext;
-	private BulbNetwork network;
 	private FinderThread finder;
-	
-	public Discoverer (Context c) {
-		this.mContext = c;
+	private BulbNetwork network;
+
+	public Discoverer (InetAddress broadcast) {
 		try {
-			this.finder = new FinderThread();
+			this.finder = new FinderThread(broadcast);
 		} catch (IOException e) {
-			Logger.log("Unable to start finder thread", e);
+			Logger.log("Unable to create FinderThread", e);
 		}
 	}
-	
+
 	public void startSearch () {
 		this.finder.start();
 	}
-	
+
 	public void stopSearch () {
 		this.finder.stopDiscovery();
 	}
 	
-	InetAddress getBroadcastAddress() throws IOException {
-	    WifiManager wifi = (WifiManager) mContext.getSystemService(Context.WIFI_SERVICE);
-	    DhcpInfo dhcp = wifi.getDhcpInfo();
-	    if (dhcp == null) {
-	    	Logger.log("Unable to get DHCP info", Logger.ERROR);
-	    }
-
-	    int broadcast = (dhcp.ipAddress & dhcp.netmask) | ~dhcp.netmask;
-	    byte[] quads = new byte[4];
-	    for (int k = 0; k < 4; k++)
-	      quads[k] = (byte) ((broadcast >> k * 8) & 0xFF);
-	    return InetAddress.getByAddress(quads);
+	public BulbNetwork getNetwork () {
+		return this.network;
 	}
-	
+
 	private class FinderThread extends Thread {
 		private boolean discovering;
-		
-		public FinderThread() throws IOException {
+		private InetAddress broadcast;
 
+		public FinderThread (InetAddress broadcast) throws IOException {
+			this.broadcast = broadcast;
 		}
-		
+
 		public void run () {
-			InetAddress broadcast = null;
-			
-			try {
-				broadcast = getBroadcastAddress();
-			} catch (IOException e) {
-				Logger.log("Failed to get broadcast address", e);
-			}
+			Logger.log("Attempting discovery, address: " + this.broadcast.toString(), Logger.DEBUG);
 			DatagramSocket serverSocket = null;
 			try {
 				serverSocket = new DatagramSocket(56700, broadcast);
@@ -75,17 +52,14 @@ public class Discoverer {
 
 			try {
 				serverSocket.setBroadcast(true);
+				Logger.log("Set broadcast to true.", Logger.DEBUG);
 			} catch (SocketException e) {
 				Logger.log("Failed to set broadcast", e);
 			}
-			
-			WifiManager wifi = (WifiManager) mContext.getSystemService(Context.WIFI_SERVICE);
-			MulticastLock mlock = wifi.createMulticastLock("me.akrs.AndroidLIFX");
-			mlock.acquire();
-			
+
 			byte[] receiveData = new byte[0xFF];
 			byte[] data;
-			
+
 			this.discovering = true;
 			while (this.discovering) {
 				DatagramPacket receivePacket =
@@ -104,21 +78,23 @@ public class Discoverer {
 
 				switch(res.getPacketType()){
 				case DISCOVER_RESPONSE:
+					if (network == null) {
+						network = new BulbNetwork();
+					}
 					network.addBulb(res.getTargetBulb(),res.getGatewayBulb(),ip);
 					break;
 				default:
 					break;
 				}
 			}
-			
-			mlock.release();
+
 			serverSocket.close();
 		}
-		
+
 		public void stopDiscovery () {
 			this.discovering = false;
 		}
-		
+
 		@SuppressWarnings("unused")
 		public boolean isRunning () {
 			return this.discovering;

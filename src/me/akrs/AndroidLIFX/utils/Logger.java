@@ -1,7 +1,5 @@
 package me.akrs.AndroidLIFX.utils;
 
-import android.util.Log;
-
 public class Logger {
 	public static final String TAG = "AndroidLIFX";
 	public static final int DEBUG = 1;
@@ -12,22 +10,22 @@ public class Logger {
 	public static void log (String s, int level) {
 		switch (level) {
 			case DEBUG:
-				Log.d(TAG, s);
+				System.out.println("DEBUG: " + s);
 				break;
 			case ERROR:
-				Log.e(TAG, s);
+				System.out.println("ERROR: " + s);
 				break;
 			case INFO:
-				Log.i(TAG, s);
+				System.out.println("INFO: " + s);
 				break;
 			case VERBOSE:
-				Log.v(TAG, s);
+				System.out.println("VERBOSE: " + s);
 				break;
 		}
 	}
 	
 	public static void log (String s, Throwable e) {
-		Log.e(TAG, s, e);
+		System.out.println("ERROR: " + s + " " + e.toString());
 	}
 	
 }
