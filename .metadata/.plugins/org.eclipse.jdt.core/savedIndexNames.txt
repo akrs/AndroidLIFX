@@ -1,0 +1,3 @@
+INDEX VERSION 1.126+/Users/Edward/AndroidLIFX/.metadata/.plugins/org.eclipse.jdt.core
+3986043539.index
+1887403328.index
