@@ -25,4 +25,9 @@ public class Logger {
 				break;
 		}
 	}
+	
+	public static void log (String s, Throwable e) {
+		Log.e(TAG, s, e);
+	}
+	
 }
