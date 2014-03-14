@@ -6,6 +6,7 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
 import me.akrs.AndroidLIFX.network.BulbNetwork;
+import me.akrs.AndroidLIFX.packets.request.DiscoveryRequest;
 import me.akrs.AndroidLIFX.packets.responses.StandardResponse;
 import me.akrs.AndroidLIFX.utils.Logger;
 
@@ -19,6 +20,8 @@ public class Discoverer {
 		} catch (IOException e) {
 			Logger.log("Unable to create FinderThread", e);
 		}
+		
+		this.network = new BulbNetwork();
 	}
 
 	public void startSearch () {
@@ -45,7 +48,7 @@ public class Discoverer {
 			Logger.log("Attempting discovery, address: " + this.broadcast.toString(), Logger.DEBUG);
 			DatagramSocket serverSocket = null;
 			try {
-				serverSocket = new DatagramSocket(56700, broadcast);
+				serverSocket = new DatagramSocket(56700);
 			} catch (SocketException e) {
 				Logger.log("Failed to open discovery socket", e);
 			}
@@ -55,6 +58,15 @@ public class Discoverer {
 				Logger.log("Set broadcast to true.", Logger.DEBUG);
 			} catch (SocketException e) {
 				Logger.log("Failed to set broadcast", e);
+			}
+			
+			DiscoveryRequest req = new DiscoveryRequest();
+			DatagramPacket pack = new DatagramPacket(req.getBytes(), req.getBytes().length, broadcast, 56700);
+			try {
+				serverSocket.send(pack);
+				Logger.log("Sent discovery request", Logger.DEBUG);
+			} catch (IOException e1) {
+				Logger.log("Failed to send broadcast", e1);
 			}
 
 			byte[] receiveData = new byte[0xFF];
@@ -78,10 +90,8 @@ public class Discoverer {
 
 				switch(res.getPacketType()){
 				case DISCOVER_RESPONSE:
-					if (network == null) {
-						network = new BulbNetwork();
-					}
 					network.addBulb(res.getTargetBulb(),res.getGatewayBulb(),ip);
+					Logger.log("Got response", Logger.DEBUG);
 					break;
 				default:
 					break;

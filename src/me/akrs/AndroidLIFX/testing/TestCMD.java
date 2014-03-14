@@ -50,7 +50,9 @@ public class TestCMD {
 		
 		d.startSearch();
 		
-		while (d.getNetwork() == null) {}
+		while (d.getNetwork().getNumberOfBulbs() == 0) {
+			continue;
+		}
 		
 		System.out.println("We got a network.");
 	}
