@@ -9,6 +9,7 @@ import java.net.SocketException;
 import android.content.Context;
 import android.net.DhcpInfo;
 import android.net.wifi.WifiManager;
+import android.net.wifi.WifiManager.MulticastLock;
 
 import me.akrs.AndroidLIFX.network.BulbNetwork;
 import me.akrs.AndroidLIFX.packets.responses.StandardResponse;
@@ -78,6 +79,10 @@ public class Discoverer {
 				Logger.log("Failed to set broadcast", e);
 			}
 			
+			WifiManager wifi = (WifiManager) mContext.getSystemService(Context.WIFI_SERVICE);
+			MulticastLock mlock = wifi.createMulticastLock("me.akrs.AndroidLIFX");
+			mlock.acquire();
+			
 			byte[] receiveData = new byte[0xFF];
 			byte[] data;
 			
@@ -106,6 +111,7 @@ public class Discoverer {
 				}
 			}
 			
+			mlock.release();
 			serverSocket.close();
 		}
 		
