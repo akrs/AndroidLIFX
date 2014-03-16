@@ -1,5 +1,6 @@
 package me.akrs.AndroidLIFX.network;
 
+import java.io.Closeable;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -20,12 +21,13 @@ import me.akrs.AndroidLIFX.packets.responses.StatusResponse;
 import me.akrs.AndroidLIFX.utils.Logger;
 import me.akrs.AndroidLIFX.utils.MacAddress;
 
-public class BulbNetwork {
+public class BulbNetwork implements Closeable {
 	
 	private InetAddress gatewayAddress = null;
 	private MacAddress gatewayMac;
 	private List<Bulb> bulbList = Collections.synchronizedList(new ArrayList<Bulb>());
 	
+	private Socket gatewaySocket;
 	private DataOutputStream gatewayOutStream;
 	private DataInputStream gatewayInStream;
 	
@@ -176,13 +178,14 @@ public class BulbNetwork {
 	    	if(gatewayAddress != null){
 	    		try {
 					gatewayOutStream.write((new StatusRequest(gatewayMac)).getBytes());
+				} catch (IOException e) {
+					Logger.log("Unable to send perodic status request", e);
 				}
-	    		catch (IOException e) {e.printStackTrace();}// TODO Auto-generated catch block}
 	    	}
 	    }
 	};
 	
-	public String toString(){
+	public String toString () {
 		StringBuilder sb = new StringBuilder();
 		sb.append("LIFXNetwork:\nGateway IP: ");
 		sb.append(gatewayAddress);
@@ -200,6 +203,12 @@ public class BulbNetwork {
 		}
 		
 		return sb.toString();
+	}
+
+
+	public void close() throws IOException {
+		gatewaySocket.close();
+		
 	}
 
 }

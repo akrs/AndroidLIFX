@@ -12,6 +12,7 @@ import android.net.wifi.WifiManager;
 import android.net.wifi.WifiManager.MulticastLock;
 
 import me.akrs.AndroidLIFX.network.BulbNetwork;
+import me.akrs.AndroidLIFX.packets.request.DiscoveryRequest;
 import me.akrs.AndroidLIFX.packets.responses.StandardResponse;
 import me.akrs.AndroidLIFX.utils.Logger;
 
@@ -35,6 +36,10 @@ public class Discoverer {
 	
 	public void stopSearch () {
 		this.finder.stopDiscovery();
+	}
+	
+	public BulbNetwork getBulbNetwork () {
+		return this.network;
 	}
 	
 	InetAddress getBroadcastAddress() throws IOException {
@@ -68,7 +73,7 @@ public class Discoverer {
 			}
 			DatagramSocket serverSocket = null;
 			try {
-				serverSocket = new DatagramSocket(56700, broadcast);
+				serverSocket = new DatagramSocket(56700);
 			} catch (SocketException e) {
 				Logger.log("Failed to open discovery socket", e);
 			}
@@ -85,6 +90,16 @@ public class Discoverer {
 			
 			byte[] receiveData = new byte[0xFF];
 			byte[] data;
+			
+			DiscoveryRequest req = new DiscoveryRequest();
+			DatagramPacket pack = new DatagramPacket(req.getBytes(), req.getBytes().length, broadcast, 56700);
+			try {
+				serverSocket.send(pack);
+				Logger.log("Sent discovery request", Logger.DEBUG);
+			} catch (IOException e1) {
+				Logger.log("Failed to send broadcast", e1);
+			}
+
 			
 			this.discovering = true;
 			while (this.discovering) {
@@ -105,6 +120,8 @@ public class Discoverer {
 				switch(res.getPacketType()){
 				case DISCOVER_RESPONSE:
 					network.addBulb(res.getTargetBulb(),res.getGatewayBulb(),ip);
+					Logger.log("Got Response", Logger.DEBUG);
+					notify();
 					break;
 				default:
 					break;
@@ -117,11 +134,6 @@ public class Discoverer {
 		
 		public void stopDiscovery () {
 			this.discovering = false;
-		}
-		
-		@SuppressWarnings("unused")
-		public boolean isRunning () {
-			return this.discovering;
 		}
 	}
 }
