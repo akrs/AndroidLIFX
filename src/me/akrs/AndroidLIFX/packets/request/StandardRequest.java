@@ -26,10 +26,11 @@ public class StandardRequest {
 			else
 				return 0x14;
 		case 8: case 9: case 10: case 11: case 12: case 13:
-			if (this.macAddress == null)
+			if (this.macAddress == null) {
 				return 0x00;
-			else
+			} else {
 				return this.macAddress.getAddressByte(position-8);
+			}
 		case 16: case 17: case 18: case 19: case 20: case 21:
 			return this.gatewayMac.getAddressByte(position-16);
 		case 32:

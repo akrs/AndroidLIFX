@@ -34,13 +34,17 @@ class GatewayInputThread extends Thread {
 
 				switch (type) {
 				case ON_OFF_RESPONSE:
+					Logger.log("Got on/off response", Logger.DEBUG);
 					OnOffResponse onOffResponse = new OnOffResponse(data);
 					Bulb onOffBulb = net.getBulb(onOffResponse.getTargetBulb());
 					onOffBulb.status = onOffResponse.getStatus();
+					Logger.log("Bulb Status:" + onOffBulb.getStatus(), Logger.DEBUG);
 					break;
 				case STATUS_RESPONSE:
+//					Logger.log("Got status response", Logger.DEBUG);
 					StatusResponse statusResponse = new StatusResponse(data);
 					Bulb statusBulb = net.getBulb(statusResponse.getTargetBulb());
+					statusBulb.status = statusResponse.getStatus();
 					statusBulb.hue = statusResponse.getHue();
 					statusBulb.luminance = statusResponse.getLuminance();
 					statusBulb.name = statusResponse.getName();

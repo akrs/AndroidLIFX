@@ -59,7 +59,7 @@ public class Bulb {
 	public void setSaturation (short saturation) {
 		this.saturation = saturation;
 		try {
-			this.setState(this.hue, this.saturation, this.luminance, this.temperature, this.fadeTime);
+			this.setState();
 		} catch (IOException e) {
 			Logger.log("Unable to set hue", e);
 		}
@@ -72,7 +72,7 @@ public class Bulb {
 	public void setLuminance (short luminance) {
 		this.luminance = luminance;
 		try {
-			this.setState(this.hue, this.saturation, this.luminance, this.temperature, this.fadeTime);
+			this.setState();
 		} catch (IOException e) {
 			Logger.log("Unable to set hue", e);
 		}
@@ -95,19 +95,20 @@ public class Bulb {
 		return status;
 	}
 
-	public void setStatus (BulbStatus status) {
+	public void setStatus (BulbStatus status) throws IOException {
 		this.status = status;
+		this.setState();
 	}
 
 	public String getName () {
 		return name;
 	}
 	
-	public void on () {
+	public void on () throws IOException {
 		this.setStatus(BulbStatus.ON);
 	}
 	
-	public void off () {
+	public void off () throws IOException {
 		this.setStatus(BulbStatus.OFF);
 	}
 
@@ -139,6 +140,7 @@ public class Bulb {
 	}
 	
 	private void setState () throws IOException {
+		Logger.log("Setting state", Logger.DEBUG);
 		net.gatewayOutStream.write(new SetStateRequest(this.macAddress, net.gatewayMac, this.hue, this.saturation, this.luminance, this.temperature, this.fadeTime).getBytes());
 	}
 }

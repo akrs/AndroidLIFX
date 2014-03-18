@@ -11,18 +11,16 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Timer;
-import java.util.TimerTask;
 
 import me.akrs.AndroidLIFX.packets.request.OnOffRequest;
 import me.akrs.AndroidLIFX.packets.request.SetStateRequest;
-import me.akrs.AndroidLIFX.packets.request.StatusRequest;
 import me.akrs.AndroidLIFX.utils.BulbStatus;
 import me.akrs.AndroidLIFX.utils.Logger;
 import me.akrs.AndroidLIFX.utils.MacAddress;
 
 public class BulbNetwork implements Closeable {
 
-	private InetAddress gatewayAddress = null;
+	protected InetAddress gatewayAddress;
 	protected MacAddress gatewayMac;
 	private List<Bulb> bulbList = Collections.synchronizedList(new ArrayList<Bulb>());
 
@@ -33,6 +31,7 @@ public class BulbNetwork implements Closeable {
 	private GatewayInputThread gatewayThread;
 
 	private Timer statusRequesterTimer;
+	private StatusRequester statusRequester;
 
 	public BulbNetwork ()  {
 		
@@ -62,7 +61,8 @@ public class BulbNetwork implements Closeable {
 
 			//Send status request with fixed interval
 			statusRequesterTimer = new Timer();
-			statusRequesterTimer.schedule(statusRequester, 500,1000);
+			statusRequester = new StatusRequester(this);
+			statusRequesterTimer.schedule(statusRequester, 0, 1000);
 
 		} catch (IOException e) {
 			Logger.log("Failed to initiate connection", e);
@@ -129,64 +129,6 @@ public class BulbNetwork implements Closeable {
 		}
 	}
 
-	TimerTask statusRequester = new TimerTask () {
-		public void run()
-		{
-			if(gatewayAddress != null){
-				try {
-					int length = inputStream.readByte();
-					byte[] data = new byte[length];
-					data[0] = (byte) length;
-		    		for(int i=1;i<length;i++){
-		    			data[i] = inputStream.readByte();
-		    		}
-		    		
-		    		PacketType type = PacketType.fromData(data[32]);
-		    		
-		    		switch (type) {
-		    		case ON_OFF_RESPONSE:
-		    			OnOffResponse onOffResponse = new OnOffResponse(data);
-		    			Bulb onOffBulb = getBulb(onOffResponse.getTargetBulb());
-		    			onOffBulb.setStatus(onOffResponse.getStatus());
-		    			break;
-		    		case STATUS_RESPONSE:
-		    			StatusResponse statusResponse = new StatusResponse(data);
-		    			Bulb statusBulb = getBulb(statusResponse.getTargetBulb());
-		    			statusBulb.setHue(statusResponse.getHue());
-		    			statusBulb.setLuminance(statusResponse.getLuminance());
-		    			statusBulb.setName(statusResponse.getName());
-		    			statusBulb.setSaturation(statusResponse.getSaturation());
-		    			statusBulb.setTemperature(statusResponse.getTemperature());
-		    			break;
-		    		case LABEL_RESPONSE:
-		    			StatusResponse changeNameResponse = new StatusResponse(data);
-		    			Bulb changeNameBulb = getBulb(changeNameResponse.getTargetBulb());
-		    			changeNameBulb.setName(changeNameResponse.getName());
-		    			break;
-					default:
-						break;
-		    		}
-		    		
-				} catch (IOException e) {
-					Logger.log("Failed to receive response", e);
-				}
-	        }
-        }
-	}
-	
-	
-	TimerTask statusRequester = new TimerTask(){
-	    public void run() {
-	    	if(gatewayAddress != null){
-	    		try {
-					gatewayOutStream.write((new StatusRequest(gatewayMac)).getBytes());
-				} catch (IOException e) {
-					Logger.log("Unable to send perodic status request", e);
-				}
-			}
-		}
-	};
-
 	public String toString () {
 		StringBuilder sb = new StringBuilder();
 		sb.append("LIFXNetwork:\nGateway IP: ");
@@ -198,7 +140,7 @@ public class BulbNetwork implements Closeable {
 		Iterator<Bulb> itr = this.getBulbIterator();
 		int i = 0;
 		while(itr.hasNext()){
-			sb.append(++i);
+			sb.append(i++);
 			sb.append(") ");
 			sb.append(itr.next());
 			sb.append("\n");
@@ -212,5 +154,6 @@ public class BulbNetwork implements Closeable {
 		gatewayThread.cease();
 
 	}
+
 
 }

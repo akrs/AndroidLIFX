@@ -15,7 +15,6 @@ public class Discoverer {
 	private BulbNetwork network;
 
 	public Discoverer (InetAddress broadcast) {
-		this.mContext = c;
 		try {
 			this.finder = new FinderThread(broadcast);
 		} catch (IOException e) {
@@ -40,20 +39,12 @@ public class Discoverer {
 		private boolean discovering;
 		private InetAddress broadcast;
 
-		public FinderThread() throws IOException {
-
 		public FinderThread (InetAddress broadcast) throws IOException {
+			this.broadcast = broadcast;
 		}
 
 		public void run () {
 			Logger.log("Attempting discovery, address: " + this.broadcast.toString(), Logger.DEBUG);
-			InetAddress broadcast = null;
-
-			try {
-				broadcast = getBroadcastAddress();
-			} catch (IOException e) {
-				Logger.log("Failed to get broadcast address", e);
-			}
 
 			DatagramSocket serverSocket = null;
 			try {
@@ -82,16 +73,6 @@ public class Discoverer {
 			byte[] receiveData = new byte[0xFF];
 			byte[] data;
 
-			DiscoveryRequest req = new DiscoveryRequest();
-			DatagramPacket pack = new DatagramPacket(req.getBytes(), req.getBytes().length, broadcast, 56700);
-			try {
-				serverSocket.send(pack);
-				Logger.log("Sent discovery request", Logger.DEBUG);
-			} catch (IOException e1) {
-				Logger.log("Failed to send broadcast", e1);
-			}
-
-
 			this.discovering = true;
 			while (this.discovering) {
 				DatagramPacket receivePacket =
@@ -112,7 +93,6 @@ public class Discoverer {
 				case DISCOVER_RESPONSE:
 					network.addBulb(res.getTargetBulb(),res.getGatewayBulb(),ip);
 					Logger.log("Got Response", Logger.DEBUG);
-					notify();
 					break;
 				default:
 					break;

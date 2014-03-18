@@ -1,6 +1,7 @@
 package me.akrs.AndroidLIFX.packets.request;
 
 import me.akrs.AndroidLIFX.packets.PacketType;
+import me.akrs.AndroidLIFX.utils.Logger;
 import me.akrs.AndroidLIFX.utils.MacAddress;
 
 public class SetStateRequest extends StandardRequest {
@@ -13,6 +14,7 @@ public class SetStateRequest extends StandardRequest {
 	
 	public SetStateRequest (MacAddress mac, MacAddress gatewayMac, short hue, short saturation, short luminance, short whiteColor, short fadeTime) { //If mac == null the message will be broadcasted
 		super(mac, gatewayMac, PacketType.SET_STATE_REQUEST, 48);
+		Logger.log("Setting state for bulb with mac: " + mac, Logger.DEBUG);
 		this.hue = hue;
 		this.saturation = saturation;
 		this.luminance = luminance;
