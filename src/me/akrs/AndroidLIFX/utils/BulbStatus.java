@@ -13,4 +13,13 @@ public enum BulbStatus {
 			return UNKNOWN;
 		}
 	}
+	
+	public static byte[] toData (BulbStatus b) {
+		switch (b) {
+		case ON:
+			return new byte[] {(byte)0, (byte)1};
+		default:
+			return new byte[] {0, 0};
+		}
+	}
 }

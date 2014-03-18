@@ -1,9 +1,9 @@
 package me.akrs.AndroidLIFX.packets.responses;
 
-public class ChangeNameResponse extends StandardResponse {
+public class ChangeLabelResponse extends StandardResponse {
 	private String name;
 
-	public ChangeNameResponse (byte[] packet) {
+	public ChangeLabelResponse (byte[] packet) {
 		super(packet);
 		
 		StringBuilder sb = new StringBuilder();

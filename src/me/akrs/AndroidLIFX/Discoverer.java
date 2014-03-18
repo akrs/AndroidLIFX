@@ -15,6 +15,7 @@ public class Discoverer {
 	private BulbNetwork network;
 
 	public Discoverer (InetAddress broadcast) {
+		this.mContext = c;
 		try {
 			this.finder = new FinderThread(broadcast);
 		} catch (IOException e) {
@@ -34,18 +35,26 @@ public class Discoverer {
 	
 	public BulbNetwork getNetwork () {
 		return this.network;
-	}
-
+    }
 	private class FinderThread extends Thread {
 		private boolean discovering;
 		private InetAddress broadcast;
 
+		public FinderThread() throws IOException {
+
 		public FinderThread (InetAddress broadcast) throws IOException {
-			this.broadcast = broadcast;
 		}
 
 		public void run () {
 			Logger.log("Attempting discovery, address: " + this.broadcast.toString(), Logger.DEBUG);
+			InetAddress broadcast = null;
+
+			try {
+				broadcast = getBroadcastAddress();
+			} catch (IOException e) {
+				Logger.log("Failed to get broadcast address", e);
+			}
+
 			DatagramSocket serverSocket = null;
 			try {
 				serverSocket = new DatagramSocket(56700);
@@ -69,13 +78,24 @@ public class Discoverer {
 				Logger.log("Failed to send broadcast", e1);
 			}
 
+
 			byte[] receiveData = new byte[0xFF];
 			byte[] data;
+
+			DiscoveryRequest req = new DiscoveryRequest();
+			DatagramPacket pack = new DatagramPacket(req.getBytes(), req.getBytes().length, broadcast, 56700);
+			try {
+				serverSocket.send(pack);
+				Logger.log("Sent discovery request", Logger.DEBUG);
+			} catch (IOException e1) {
+				Logger.log("Failed to send broadcast", e1);
+			}
+
 
 			this.discovering = true;
 			while (this.discovering) {
 				DatagramPacket receivePacket =
-					new DatagramPacket(receiveData, receiveData.length);
+						new DatagramPacket(receiveData, receiveData.length);
 				try {
 					serverSocket.receive(receivePacket);
 				} catch (IOException e) {
@@ -91,7 +111,8 @@ public class Discoverer {
 				switch(res.getPacketType()){
 				case DISCOVER_RESPONSE:
 					network.addBulb(res.getTargetBulb(),res.getGatewayBulb(),ip);
-					Logger.log("Got response", Logger.DEBUG);
+					Logger.log("Got Response", Logger.DEBUG);
+					notify();
 					break;
 				default:
 					break;
