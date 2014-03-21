@@ -15,6 +15,7 @@ public class SetStateRequest extends StandardRequest {
 	public SetStateRequest (MacAddress mac, MacAddress gatewayMac, short hue, short saturation, short luminance, short whiteColor, short fadeTime) { //If mac == null the message will be broadcasted
 		super(mac, gatewayMac, PacketType.SET_STATE_REQUEST, 48);
 		Logger.log("Setting state for bulb with mac: " + mac, Logger.DEBUG);
+		Logger.log("Brightness is " + luminance, Logger.DEBUG);
 		this.hue = hue;
 		this.saturation = saturation;
 		this.luminance = luminance;
@@ -29,15 +30,15 @@ public class SetStateRequest extends StandardRequest {
 		
 		//this.***** >>> 8*(position-**) is the way used to get the bytes from the short. >>> is unsigned shift of bits.
 		switch (position) {
-		case 37: case 38:
+		case 42: case 43:
 			return (byte)(this.hue >>> 8*(position-37));
-		case 39: case 40:
+		case 44: case 45:
 			return (byte)(this.saturation >>> 8*(position-39));
-		case 41: case 42:
+		case 46: case 47:
 			return (byte)(this.luminance >>> 8*(position-41));
-		case 43: case 44:
+		case 48: case 49:
 			return (byte)(this.whiteColor >>> 8*(position-43));
-		case 45: case 46:
+		case 50: case 51:
 			return (byte)(this.fadeTime >>> 8*(position-45));
 		}
 		

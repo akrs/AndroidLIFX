@@ -1,13 +1,13 @@
 package me.akrs.AndroidLIFX.testing;
 
 import java.io.IOException;
+import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.InterfaceAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Enumeration;
 import java.util.List;
 import java.util.Scanner;
 
@@ -18,35 +18,7 @@ import me.akrs.AndroidLIFX.utils.java.Logger;
 
 public class TestCMD {
 	public static void main (String[] args) throws IOException {
-		Enumeration<NetworkInterface> interfaces = null;
-		try {
-			interfaces = NetworkInterface.getNetworkInterfaces();
-		} catch (SocketException e1) {
-			Logger.log("unable to get all NetworkInterfaces", e1);
-		}
-		ArrayList<NetworkInterface> ifaces = Collections.list(interfaces);
-		
-		int i = 0;
-		Scanner s = new Scanner(System.in);
-		System.out.print("Please choose a network interface:\n-----------------------------------------\n");
-		for (NetworkInterface iface : ifaces) {
-			System.out.println(i + ") " + iface.getDisplayName());
-			i++;
-		}
-		
-		int j = s.nextInt();
-		
-		List<InterfaceAddress> addresses = ifaces.get(j).getInterfaceAddresses();
-		InetAddress broadcast = null;
-		
-		for (InterfaceAddress address : addresses) {
-			if (address != null) {
-				Logger.log("Found address: " + address + " With broadcast address: " + address.getBroadcast(), Logger.DEBUG);
-				if (address.getBroadcast() != null) {
-					broadcast = address.getBroadcast();
-				}
-			}
-		}
+		InetAddress broadcast = findBroadcastAddress();
 		
 		Discoverer d = new Discoverer(broadcast);
 		
@@ -66,6 +38,9 @@ public class TestCMD {
 		for (Bulb b : bulbs) {
 			System.out.println(++i1 +") " + b.toString());
 		}
+		
+		Scanner s = new Scanner(System.in);
+		int j = 0;
 		int index = s.nextInt() - 1;
 		if (index == -1) {
 			boolean bob = true;
@@ -91,7 +66,7 @@ public class TestCMD {
 			Bulb b = net.getBulbById(index);
 			boolean bob = true;
 			while (bob) {
-				System.out.println("Choose a command:\n1) Off\n2) On\n3) Hue");
+				System.out.println("Choose a command:\n1) Off\n2) On\n3) Lum");
 				
 				j = s.nextInt();
 				switch (j) {
@@ -104,8 +79,8 @@ public class TestCMD {
 					b.on();
 					break;
 				case 3:
-					System.out.print("Enter a hue: ");
-					b.setHue(s.nextShort());
+					System.out.print("Enter a lum: ");
+					b.setLuminance(s.nextShort());
 					break;
 				default:
 					break;
@@ -115,5 +90,26 @@ public class TestCMD {
 		s.close();
 		net.close();
 		return;
+	}
+
+	private static InetAddress findBroadcastAddress() {
+		try {
+			ArrayList<NetworkInterface> ifaces = Collections.list(NetworkInterface.getNetworkInterfaces());
+	
+			for (NetworkInterface i : ifaces) {
+				if (!i.isLoopback()) {
+					List<InterfaceAddress> addresses = i.getInterfaceAddresses();
+					for (InterfaceAddress a : addresses) {
+						if (a.getAddress() instanceof Inet4Address) {
+							return a.getBroadcast();
+						}
+					}
+				}
+			}
+		} catch (SocketException e) {
+			Logger.log("unable to do network stuff.", e);
+		}
+		
+		return null;
 	}
 }

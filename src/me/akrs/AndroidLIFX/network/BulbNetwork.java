@@ -50,8 +50,7 @@ public class BulbNetwork implements Closeable {
 
 	private void initiateConnection () {
 		try {
-			@SuppressWarnings("resource")
-			Socket gatewaySocket = new Socket(gatewayAddress, 56700);
+			this.gatewaySocket = new Socket(gatewayAddress, 56700);
 			gatewayOutStream = new DataOutputStream(gatewaySocket.getOutputStream());
 			gatewayInStream = new DataInputStream(gatewaySocket.getInputStream());
 
@@ -153,6 +152,32 @@ public class BulbNetwork implements Closeable {
 		gatewaySocket.close();
 		gatewayThread.cease();
 
+	}
+
+	public void reconnect() {
+		try {
+			gatewaySocket.close();
+			gatewayThread.cease();
+			statusRequesterTimer.cancel();
+			
+			this.gatewaySocket = new Socket(gatewayAddress, 56700);
+			gatewayOutStream = new DataOutputStream(gatewaySocket.getOutputStream());
+			gatewayInStream = new DataInputStream(gatewaySocket.getInputStream());
+
+			//New thread for listening of the TCP connection
+			gatewayThread = new GatewayInputThread(gatewayInStream, this);
+			gatewayThread.start();
+
+			//Send status request with fixed interval
+			statusRequesterTimer = new Timer();
+			statusRequester = new StatusRequester(this);
+			statusRequesterTimer.schedule(statusRequester, 0, 1000);
+		} catch (IOException e) {
+			Logger.log("unable to close socket on reconnect", e);
+		}
+
+		
+		
 	}
 
 

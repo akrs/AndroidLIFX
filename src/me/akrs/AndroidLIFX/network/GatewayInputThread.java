@@ -2,6 +2,7 @@ package me.akrs.AndroidLIFX.network;
 
 import java.io.DataInputStream;
 import java.io.IOException;
+import java.net.SocketException;
 
 import me.akrs.AndroidLIFX.packets.PacketType;
 import me.akrs.AndroidLIFX.packets.responses.OnOffResponse;
@@ -63,8 +64,11 @@ class GatewayInputThread extends Thread {
 				default:
 					break;
 				}
-
+			} catch (SocketException e) {
+				this.running = false;
+				net.reconnect();
 			} catch (IOException e) {
+				
 				Logger.log("Failed to receive response", e);
 			}
 		}

@@ -23,7 +23,7 @@ public class Bulb {
 	public Bulb (MacAddress mac, BulbNetwork net) {
 		this.macAddress = mac;
 		this.net = net;
-		this.fadeTime = 50;
+		this.fadeTime = 1;
 	}
 	
 	public Bulb (MacAddress mac, BulbNetwork net, short fadeTime) {
@@ -143,5 +143,6 @@ public class Bulb {
 	private void setState () throws IOException {
 		Logger.log("Setting state", Logger.DEBUG);
 		net.gatewayOutStream.write(new SetStateRequest(this.macAddress, net.gatewayMac, this.hue, this.saturation, this.luminance, this.temperature, this.fadeTime).getBytes());
+		Logger.log("Setted state", Logger.DEBUG);
 	}
 }
