@@ -6,7 +6,7 @@ import java.io.IOException;
 import me.akrs.AndroidLIFX.packets.PacketType;
 import me.akrs.AndroidLIFX.packets.responses.OnOffResponse;
 import me.akrs.AndroidLIFX.packets.responses.StatusResponse;
-import me.akrs.AndroidLIFX.utils.Logger;
+import me.akrs.AndroidLIFX.utils.java.Logger;
 
 class GatewayInputThread extends Thread {
 
@@ -44,6 +44,10 @@ class GatewayInputThread extends Thread {
 //					Logger.log("Got status response", Logger.DEBUG);
 					StatusResponse statusResponse = new StatusResponse(data);
 					Bulb statusBulb = net.getBulb(statusResponse.getTargetBulb());
+					if (statusBulb == null) {
+						net.addBulb(statusResponse.getTargetBulb(), statusResponse.getGatewayBulb(), net.gatewayAddress);
+						statusBulb = net.getBulb(statusResponse.getTargetBulb());
+					}
 					statusBulb.status = statusResponse.getStatus();
 					statusBulb.hue = statusResponse.getHue();
 					statusBulb.luminance = statusResponse.getLuminance();

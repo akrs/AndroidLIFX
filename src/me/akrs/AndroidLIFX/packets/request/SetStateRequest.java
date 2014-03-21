@@ -1,8 +1,8 @@
 package me.akrs.AndroidLIFX.packets.request;
 
 import me.akrs.AndroidLIFX.packets.PacketType;
-import me.akrs.AndroidLIFX.utils.Logger;
 import me.akrs.AndroidLIFX.utils.MacAddress;
+import me.akrs.AndroidLIFX.utils.java.Logger;
 
 public class SetStateRequest extends StandardRequest {
 	

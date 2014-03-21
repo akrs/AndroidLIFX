@@ -23,7 +23,7 @@ public class DiscoveryRequest {
 		byte[] bytes = new byte[this.getLength()];
 		
 		//Loop throw all bytes and add them to the byte array
-		for(int i=0;i<this.getLength();i++){
+		for(int i = 0;i < this.getLength(); i++){
 			bytes[i] = this.getByte(i);
 		}
 		

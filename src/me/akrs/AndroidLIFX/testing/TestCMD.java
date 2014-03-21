@@ -11,10 +11,10 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.Scanner;
 
-import me.akrs.AndroidLIFX.Discoverer;
 import me.akrs.AndroidLIFX.network.Bulb;
 import me.akrs.AndroidLIFX.network.BulbNetwork;
-import me.akrs.AndroidLIFX.utils.Logger;
+import me.akrs.AndroidLIFX.utils.java.Discoverer;
+import me.akrs.AndroidLIFX.utils.java.Logger;
 
 public class TestCMD {
 	public static void main (String[] args) throws IOException {
@@ -52,11 +52,12 @@ public class TestCMD {
 		
 		d.startSearch();
 		
-		while (d.getNetwork().getNumberOfBulbs() == 0) {
+		BulbNetwork net = d.getNetwork();
+		
+		while (d.getNetwork().getNumberOfBulbs() != 2) {
 			continue;
 		}
 		
-		BulbNetwork net = d.getNetwork();
 		System.out.print("We got a network.\n" + net.toString() + "\nChoose a bulb, or 0 for network:\n");
 		d.stopSearch();
 		

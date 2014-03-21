@@ -2,11 +2,12 @@ package me.akrs.AndroidLIFX.network;
 
 import java.io.IOException;
 
+import me.akrs.AndroidLIFX.packets.request.OnOffRequest;
 import me.akrs.AndroidLIFX.packets.request.SetLabelRequest;
 import me.akrs.AndroidLIFX.packets.request.SetStateRequest;
 import me.akrs.AndroidLIFX.utils.BulbStatus;
-import me.akrs.AndroidLIFX.utils.Logger;
 import me.akrs.AndroidLIFX.utils.MacAddress;
+import me.akrs.AndroidLIFX.utils.java.Logger;
 
 public class Bulb {
 	private BulbNetwork net;
@@ -97,7 +98,7 @@ public class Bulb {
 
 	public void setStatus (BulbStatus status) throws IOException {
 		this.status = status;
-		this.setState();
+		net.gatewayOutStream.write(new OnOffRequest(this.macAddress, net.gatewayMac, this.status).getBytes());
 	}
 
 	public String getName () {

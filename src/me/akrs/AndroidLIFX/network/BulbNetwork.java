@@ -15,8 +15,8 @@ import java.util.Timer;
 import me.akrs.AndroidLIFX.packets.request.OnOffRequest;
 import me.akrs.AndroidLIFX.packets.request.SetStateRequest;
 import me.akrs.AndroidLIFX.utils.BulbStatus;
-import me.akrs.AndroidLIFX.utils.Logger;
 import me.akrs.AndroidLIFX.utils.MacAddress;
+import me.akrs.AndroidLIFX.utils.java.Logger;
 
 public class BulbNetwork implements Closeable {
 
