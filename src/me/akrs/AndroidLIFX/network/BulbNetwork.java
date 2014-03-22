@@ -122,7 +122,7 @@ public class BulbNetwork implements Closeable {
 
 	// Commands
 	// Set bulb state
-	public void setState(short hue,short saturation,short luminance,short whiteColor,short fadeTime) throws IOException{
+	public void setState (short hue, short saturation, short luminance, short whiteColor, short fadeTime) throws IOException{
 		if(gatewayAddress != null){
 			gatewayOutStream.write((new SetStateRequest(null, gatewayMac, hue, saturation, luminance, whiteColor, fadeTime)).getBytes());
 		}
@@ -151,7 +151,6 @@ public class BulbNetwork implements Closeable {
 	public void close() throws IOException {
 		gatewaySocket.close();
 		gatewayThread.cease();
-
 	}
 
 	public void reconnect() {
@@ -173,7 +172,7 @@ public class BulbNetwork implements Closeable {
 			statusRequester = new StatusRequester(this);
 			statusRequesterTimer.schedule(statusRequester, 0, 1000);
 		} catch (IOException e) {
-			Logger.log("unable to close socket on reconnect", e);
+			Logger.log("unable to reconnect", e);
 		}
 
 		
