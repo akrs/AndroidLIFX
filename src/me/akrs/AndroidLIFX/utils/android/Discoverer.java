@@ -27,6 +27,8 @@ public class Discoverer {
 		} catch (IOException e) {
 			Logger.log("Unable to start finder thread", e);
 		}
+		
+		this.network = new BulbNetwork();
 	}
 
 	public void startSearch () {
@@ -119,9 +121,12 @@ public class Discoverer {
 
 				switch(res.getPacketType()){
 				case DISCOVER_RESPONSE:
+					if (network == null) {
+						network = new BulbNetwork();
+					}
 					network.addBulb(res.getTargetBulb(),res.getGatewayBulb(),ip);
 					Logger.log("Got Response", Logger.DEBUG);
-					notify();
+					//notify();
 					break;
 				default:
 					break;

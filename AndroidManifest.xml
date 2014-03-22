@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="me.akrs.androidlifx"
+    package="me.akrs.AndroidLIFX"
     android:versionCode="1"
     android:versionName="1.0" >
 
