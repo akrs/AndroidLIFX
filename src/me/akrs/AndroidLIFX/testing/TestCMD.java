@@ -66,7 +66,7 @@ public class TestCMD {
 			Bulb b = net.getBulbById(index);
 			boolean bob = true;
 			while (bob) {
-				System.out.println("Choose a command:\n1) Off\n2) On\n3) Lum");
+				System.out.println("Choose a command:\n1) Off\n2) On\n3) Lum\n4) Hue");
 				
 				j = s.nextInt();
 				switch (j) {
@@ -82,6 +82,9 @@ public class TestCMD {
 					System.out.print("Enter a lum: ");
 					b.setLuminance(s.nextShort());
 					break;
+				case 4:
+					System.out.println("Enter a hue: ");
+					b.setHue(s.nextShort());
 				default:
 					break;
 				}

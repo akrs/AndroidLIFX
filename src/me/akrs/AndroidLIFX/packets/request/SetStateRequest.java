@@ -24,24 +24,27 @@ public class SetStateRequest extends StandardRequest {
 	}
 
 	@Override
-	public byte getByte (int position) {
-		if (position <= 32) {return super.getByte(position);} //The standard request takes care of most things
-		
-		
+	public byte getByte(int position) {
+		if(position<=32){return super.getByte(position);} //The standard request takes care of most things
+
+
 		//this.***** >>> 8*(position-**) is the way used to get the bytes from the short. >>> is unsigned shift of bits.
-		switch (position) {
-		case 42: case 43:
-			return (byte)(this.hue >>> 8*(position-37));
-		case 44: case 45:
+		switch(position){
+		case 37:
+			return (byte)(Short.reverseBytes(this.hue));
+//			return (byte)(this.hue >>> 8*(position-38));
+		case 38:
+			return (byte)(Short.reverseBytes(this.hue) >>> 8);
+		case 39: case 40:
 			return (byte)(this.saturation >>> 8*(position-39));
-		case 46: case 47:
+		case 41: case 42:
 			return (byte)(this.luminance >>> 8*(position-41));
-		case 48: case 49:
+		case 43: case 44:
 			return (byte)(this.whiteColor >>> 8*(position-43));
-		case 50: case 51:
+		case 45: case 46:
 			return (byte)(this.fadeTime >>> 8*(position-45));
 		}
-		
+
 		return 0;
 	}
 
