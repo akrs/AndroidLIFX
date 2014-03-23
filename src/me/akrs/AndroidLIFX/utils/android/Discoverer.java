@@ -5,6 +5,7 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
+import java.util.Date;
 
 import me.akrs.AndroidLIFX.network.BulbNetwork;
 import me.akrs.AndroidLIFX.packets.request.DiscoveryRequest;
@@ -31,6 +32,27 @@ public class Discoverer {
 
 	public void startSearch () {
 		this.finder.start();
+	}
+	
+	//	A hack of sorts, provides time for discovery to occur synchronously.
+	//	Bad because it does use a lot of CPU power. Very much a hack.
+	//	Not using this after all, but keeping just in case.
+	public static void waitForDiscovery(int seconds) {
+		Date start = new Date();
+		Date end = new Date();
+		while (end.getTime() - start.getTime() < seconds * 1000) {
+			end = new Date();
+		}
+	}
+	
+	//	Necessary for finder to sleep in order to collect bulb info.
+	@SuppressWarnings("static-access")
+	public void sleepThread(int milliseconds) {
+		try {
+		    finder.sleep(milliseconds);
+		} catch(InterruptedException ex) {
+		    Thread.currentThread().interrupt();
+		}
 	}
 
 	public void stopSearch () {
@@ -62,7 +84,14 @@ public class Discoverer {
 		public FinderThread() throws IOException {
 
 		}
-
+		
+		public void wait(int milliseconds) {
+			try {
+			    finder.sleep(milliseconds);
+			} catch(InterruptedException ex) {
+			    finder.currentThread().interrupt();
+			}
+		}
 		public void run () {
 			InetAddress broadcast = null;
 
