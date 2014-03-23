@@ -27,8 +27,6 @@ public class Discoverer {
 		} catch (IOException e) {
 			Logger.log("Unable to start finder thread", e);
 		}
-		
-		this.network = new BulbNetwork();
 	}
 
 	public void startSearch () {
